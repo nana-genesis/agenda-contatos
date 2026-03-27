@@ -27,4 +27,4 @@ Uma aplicação web simples para gerenciar contatos telefônicos.
 
 ## Deploy
 
-A aplicação está disponível em: [npx plugins add vercel/vercel-plugin]
+A aplicação está disponível em: [https://agenda-contatos-di8dytszl-nara-ores-projects.vercel.app/]
