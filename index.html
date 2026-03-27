@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Contatos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .delete-btn {
+            background: #ff4444;
+            padding: 5px 10px;
+            font-size: 12px;
+            width: auto;
+        }
+
+        .delete-btn:hover {
+            background: #cc0000;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+            
+            button {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Agenda de Contatos</h1>
+        
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required placeholder="Digite o nome completo">
+            </div>
+            
+            <div class="form-group">
+                <label for="telefone">Telefone:</label>
+                <input type="tel" id="telefone" name="telefone" required placeholder="(99) 99999-9999">
+            </div>
+            
+            <button type="submit">📌 Cadastrar Contato</button>
+        </form>
+        
+        <table id="contactTable">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Telefone</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr class="empty-message">
+                    <td colspan="3">Nenhum contato cadastrado</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Carregar contatos do localStorage
+        let contacts = [];
+
+        function loadContacts() {
+            const savedContacts = localStorage.getItem('contacts');
+            if (savedContacts) {
+                contacts = JSON.parse(savedContacts);
+                renderTable();
+            }
+        }
+
+        function saveContacts() {
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (contacts.length === 0) {
+                tbody.innerHTML = '<tr class="empty-message"><td colspan="3">Nenhum contato cadastrado</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = contacts.map((contact, index) => `
+                <tr>
+                    <td>${escapeHtml(contact.nome)}</td>
+                    <td>${escapeHtml(contact.telefone)}</td>
+                    <td><button class="delete-btn" onclick="deleteContact(${index})">Excluir</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function addContact(nome, telefone) {
+            contacts.push({ nome, telefone });
+            saveContacts();
+            renderTable();
+        }
+
+        function deleteContact(index) {
+            contacts.splice(index, 1);
+            saveContacts();
+            renderTable();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nomeInput = document.getElementById('nome');
+            const telefoneInput = document.getElementById('telefone');
+            
+            const nome = nomeInput.value.trim();
+            const telefone = telefoneInput.value.trim();
+            
+            if (nome === '' || telefone === '') {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+            
+            addContact(nome, telefone);
+            
+            nomeInput.value = '';
+            telefoneInput.value = '';
+            
+            nomeInput.focus();
+        });
+
+        loadContacts();
+    </script>
+</body>
+</html>
