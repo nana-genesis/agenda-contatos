@@ -27,4 +27,4 @@ Uma aplicação web simples para gerenciar contatos telefônicos.
 
 ## Deploy
 
-A aplicação está disponível em: [URL da Vercel]
+A aplicação está disponível em: [npx plugins add vercel/vercel-plugin]
